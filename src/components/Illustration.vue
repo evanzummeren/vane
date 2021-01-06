@@ -40,7 +40,7 @@ export default {
       title: "",
       mobile: false,
       settings: {
-        image: "../image.png",
+        image: "",
         desktop: {
           scale: .3,
           transformedScale: .35
@@ -48,16 +48,8 @@ export default {
         mobile: {
           scale: .2,
           transformedScale: .25
-        }
-        // image: "./image.png",
-        // desktop: {
-        //   scale: .3,
-        //   transformedScale: .35
-        // },
-        // mobile: {
-        //   scale: .2,
-        //   transformedScale: .25
-        // }
+        },
+        nextId: 0
       }
     }
   },
@@ -77,9 +69,22 @@ export default {
         if ("id" in item.fields) { airtableResponse[item.fields.id].id = item.fields.id }
         if ("title" in item.fields) { airtableResponse[item.fields.id].title = item.fields.title }
         if ("image" in item.fields) { airtableResponse[item.fields.id].image = item.fields.image[0].url } 
+        if ("desktopScale" in item.fields) { airtableResponse[item.fields.id].desktopScale = item.fields.desktopScale } 
+        if ("desktopZoom" in item.fields) { airtableResponse[item.fields.id].desktopZoom = item.fields.desktopZoom } 
+        if ("mobileScale" in item.fields) { airtableResponse[item.fields.id].mobileScale = item.fields.mobileScale } 
+        if ("mobileZoom" in item.fields) { airtableResponse[item.fields.id].mobileZoom = item.fields.mobileZoom } 
+        if ("nextId" in item.fields) { airtableResponse[item.fields.id].nextId = item.fields.nextId } 
       })
 
       _vue.title = airtableResponse[_vue.$route.params.id].title;
+      _vue.settings.image = airtableResponse[_vue.$route.params.id].image;
+      _vue.settings.desktop.scale = airtableResponse[_vue.$route.params.id].desktopScale;
+      _vue.settings.desktop.transformedScale = airtableResponse[_vue.$route.params.id].desktopZoom;
+      _vue.settings.mobile.scale = airtableResponse[_vue.$route.params.id].mobileScale;
+      _vue.settings.mobile.transformedScale = airtableResponse[_vue.$route.params.id].mobileZoom;
+      _vue.settings.nextId = airtableResponse[_vue.$route.params.id].nextId;
+
+      console.log(_vue.settings)
     })
     .catch(function (error) {
       // handle error
@@ -124,12 +129,16 @@ export default {
         opacity: 0
       })
     },
+    scrollTutorial() {
+      // show scroll tutorial
+      
+    },
     addDrawing() { // Adds drawing to canvas
       gsap.set(this.$refs.circle, {
         opacity: 1
       })
 
-      this.drawing = PIXI.Sprite.from(this.image);
+      this.drawing = PIXI.Sprite.from(this.settings.image);
 
       let art = this.drawing;
 
@@ -244,7 +253,8 @@ export default {
       })
          
       gsap.set(_vue.$refs.circleBlack, {
-        opacity: 1
+        opacity: 1,
+        delay: 1
       })
 
       gsap.to(_vue.$refs.circleBlack, 3, {
@@ -265,9 +275,10 @@ export default {
       // Push router
       setTimeout(() => {
         window.scrollTo(0, 0);
+
         // needs more elegant fix
         // fix https://stackoverflow.com/questions/32106155/can-you-force-vue-js-to-reload-re-render
-        this.$router.push(({ path: `../../illustration/2` }));
+        this.$router.push(({ path: `../../illustration/${this.settings.nextId}` }));
         location.reload();
       }, 4000);
       
@@ -324,6 +335,7 @@ export default {
   top: 50%;
   opacity: 0;
   transform: translate(-50%,-50%);
+  z-index: 1000;
 }
 
 .illustration__container {
